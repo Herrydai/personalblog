@@ -36,6 +36,10 @@
 	position:relative;
 	margin:0 auto;
 }
+#message-box{
+	width:360px;
+	text-align:left;
+}
 .color_default
 {
 	background-color:#cccccc;
