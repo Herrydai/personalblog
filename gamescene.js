@@ -89,7 +89,7 @@ function initconnect()
 	});
 	socket.on('start',function(m){
 		if(first_player)
-			lock =!lock;
+			lock =false;
 		var div = $('<div></div>');
 		div.addClass("message");
 		div.text(m.content);

@@ -16,8 +16,7 @@ io.on('connection', function(socket){
 		
 	//监听新用户加入
 	socket.on('login', function(obj){
-		//将新加入用户的唯一标识当作socket的名称，后面退出的时候会用到
-		socket.name = obj.userid;
+		//socket.name = obj.userid;
 		
 		if(onlineCount<2)
 		{
@@ -29,6 +28,11 @@ io.on('connection', function(socket){
 			if(onlineCount ==2)
 				io.sockets.in('player').emit('start',{content:"game start!"});
 			console.log("current_num"+onlineCount);
+		}
+		else
+		{
+			var m ="current users are too many!please wait...";
+			socket.emit('message',{content:m});
 		}
 	});	
 	socket.on('action', function(obj){
