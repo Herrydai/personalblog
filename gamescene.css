@@ -38,7 +38,12 @@
 }
 #message-box{
 	width:360px;
+	margin:0 auto;
+}
+.message{
 	text-align:left;
+	color:#00ee00;
+	margin:10px auto;
 }
 .color_default
 {

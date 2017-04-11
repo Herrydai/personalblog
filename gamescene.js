@@ -5,42 +5,36 @@ var lock=true;
 var first_player=true;
 
 
+function addScore(current_player)
+{
+	if(current_player)
+	{
+		score1++;
+		$('#user1').text("玩家1："+score1);
+	}
+	else
+	{
+		score2++;
+		$('#user2').text("玩家2："+score2);
+	}
+}
+//check if it is a square
 function checkBox(x,y,type,current_player)
 {
 	var changed=false;
+	var color = current_player?"#aeeeee":"#eeee00";
 	if(type == "row")
 	{
 		
 		if($('#row'+x+''+(y-1)).attr("value")&&$('#col'+x+''+(y-1)).attr("value")&&$('#col'+(x+1)+''+(y-1)).attr("value"))
 		{
-			if(current_player)
-			{
-				$('#box'+x+''+(y-1)).css("background-color","#aeeeee");
-				score1=score1+1;
-				$('#user1').text("玩家1："+score1);
-			}
-			else
-			{
-				$('#box'+x+''+(y-1)).css("background-color","#eeee00");
-				score2=score2+1;
-				$('#user2').text("玩家2："+score2);
-			}
+			$('#box'+x+''+(y-1)).css("background-color",color);
 			changed=true;
 		}
 		if($('#row'+x+''+(y+1)).attr("value")&&$('#col'+x+''+y).attr("value")&&$('#col'+(x+1)+''+y).attr("value"))
 		{
-			if(current_player)
-			{
-				$('#box'+x+''+''+y).css("background-color","#aeeeee");
-				score1=score1+1;
-				$('#user1').text("玩家1："+score1);
-			}
-			else
-			{
-				$('#box'+x+''+''+y).css("background-color","#eeee00");
-				score2=score2+1;
-				$('#user2').text("玩家2："+score2);
-			}
+			
+			$('#box'+x+''+''+y).css("background-color",color);
 			changed=true;
 		}
 	}
@@ -48,41 +42,21 @@ function checkBox(x,y,type,current_player)
 	{
 		if($('#row'+(x-1)+''+y).attr("value")&&$('#row'+(x-1)+''+(y+1)).attr("value")&&$('#col'+(x-1)+''+y).attr("value"))
 		{
-			if(current_player)
-			{
-				$('#box'+(x-1)+''+y).css("background-color","#aeeeee");
-				score1=score1+1;
-				$('#user1').text("玩家1："+score1);
-			}
-			else
-			{
-				$('#box'+(x-1)+''+y).css("background-color","#eeee00");
-				score2=score2+1;
-				$('#user2').text("玩家2："+score2);
-			}
+			$('#box'+(x-1)+''+y).css("background-color",color);
 			changed=true;
 		}
 		if($('#row'+x+''+y).attr("value")&&$('#row'+x+''+(y+1)).attr("value")&&$('#col'+(x+1)+''+y).attr("value"))
 		{
-			if(current_player)
-			{
-				$('#box'+x+''+''+y).css("background-color","#aeeeee");
-				score1=score1+1;
-				$('#user1').text("玩家1："+score1);
-			}
-			else
-			{
-				$('#box'+x+''+''+y).css("background-color","#eeee00");
-				score2=score2+1;
-				$('#user2').text("玩家2："+score2);
-			}
+			$('#box'+x+''+''+y).css("background-color",color);
 			changed=true;
 		}
 	}
+	if(changed)
+		addScore(current_player);
 	return changed;
 }
 	
-
+//connection fuction
 function initconnect()
 {
 	socket = io.connect('ws://localhost:3000');
@@ -90,7 +64,7 @@ function initconnect()
 	socket.emit('login', {userid:Uid, username:22222});
 	socket.on('getuser',function(o){
 		first_player=o.isFirst;
-		lock = !first_player;	
+		//lock = !first_player;	
 	});
 	socket.on('action', function(o){
 		
@@ -107,11 +81,19 @@ function initconnect()
 		checkBox(o.x,o.y,o.action,o.cur);
 		isGameOver();
 	});
-	socket.on('message',function(m){
-		var contentDiv = '<div>'+m.content+'</div>';		
-		var section = document.createElement('section');
-		section.innerHTML = contentDiv;
-		$('#message').append(section);
+	socket.on('message',function(m){		
+		var div = $('<div></div>');
+		div.addClass("message");
+		div.text(m.content);
+		$('#message-box').prepend(div);
+	});
+	socket.on('start',function(m){
+		if(first_player)
+			lock =!lock;
+		var div = $('<div></div>');
+		div.addClass("message");
+		div.text(m.content);
+		$('#message-box').prepend(div);
 	});
 }
 function initcontainer()
