@@ -3,18 +3,19 @@ var score1=0,score2=0;
 var socket=null;
 var lock=true;
 var first_player=true;
+var currentpos = null;
 
-
-function addScore(current_player)
+function addScore(current_player,getscore)
 {
+	if(!getscore)return;
 	if(current_player)
 	{
-		score1++;
+		score1=score1+getscore;
 		$('#user1').text("玩家1："+score1);
 	}
 	else
 	{
-		score2++;
+		score2=score2+getscore;
 		$('#user2').text("玩家2："+score2);
 	}
 }
@@ -22,6 +23,7 @@ function addScore(current_player)
 function checkBox(x,y,type,current_player)
 {
 	var changed=false;
+	var getscore = 0;
 	var color = current_player?"#aeeeee":"#eeee00";
 	if(type == "row")
 	{
@@ -29,13 +31,13 @@ function checkBox(x,y,type,current_player)
 		if($('#row'+x+''+(y-1)).attr("value")&&$('#col'+x+''+(y-1)).attr("value")&&$('#col'+(x+1)+''+(y-1)).attr("value"))
 		{
 			$('#box'+x+''+(y-1)).css("background-color",color);
-			changed=true;
+			getscore++;
 		}
 		if($('#row'+x+''+(y+1)).attr("value")&&$('#col'+x+''+y).attr("value")&&$('#col'+(x+1)+''+y).attr("value"))
 		{
 			
 			$('#box'+x+''+''+y).css("background-color",color);
-			changed=true;
+			getscore++;
 		}
 	}
 	else if(type == "col")
@@ -43,16 +45,16 @@ function checkBox(x,y,type,current_player)
 		if($('#row'+(x-1)+''+y).attr("value")&&$('#row'+(x-1)+''+(y+1)).attr("value")&&$('#col'+(x-1)+''+y).attr("value"))
 		{
 			$('#box'+(x-1)+''+y).css("background-color",color);
-			changed=true;
+			getscore++;
 		}
 		if($('#row'+x+''+y).attr("value")&&$('#row'+x+''+(y+1)).attr("value")&&$('#col'+(x+1)+''+y).attr("value"))
 		{
 			$('#box'+x+''+''+y).css("background-color",color);
-			changed=true;
+			getscore++;
 		}
 	}
-	if(changed)
-		addScore(current_player);
+	addScore(current_player,getscore);
+	changed = getscore?true:false;
 	return changed;
 }
 	
@@ -72,12 +74,21 @@ function initconnect()
 		{
 			lock = !lock;
 			current_player=!o.cur;
-			$('#cur_user').text('当前：玩家'+(2-current_player));
+			var m =(first_player-current_player)?"对方回合":"你的回合";
+			$('#cur_user').text(m);
 		}
-		$('#'+o.action+o.x+o.y).removeClass('color_default');
+		if(currentpos)
+		{
+			$(currentpos).removeClass('color_current');
+			currentpos=null;
+		}
+		currentpos = '#'+o.action+o.x+o.y;
+		$(currentpos).removeClass('color_default');
 		var count=o.cur?1:2;
-		$('#'+o.action+o.x+o.y).addClass('color_click_'+count);
-		$('#'+o.action+o.x+o.y).attr("value",count);
+		$(currentpos).addClass('color_click_'+count);
+		$(currentpos).addClass('color_current');
+		$(currentpos).attr("value",count);
+		
 		checkBox(o.x,o.y,o.action,o.cur);
 		isGameOver();
 	});
@@ -94,6 +105,8 @@ function initconnect()
 		div.addClass("message");
 		div.text(m.content);
 		$('#message-box').prepend(div);
+		var m =(first_player-current_player)?"对方回合":"你的回合";
+		$('#cur_user').text(m);
 	});
 }
 function initcontainer()
@@ -101,11 +114,11 @@ function initcontainer()
 	score1=0;score2=0;
 	$('#user1').text("玩家1：0");
 	$('#user2').text("玩家2：0");
-	for (var y= 0;y<10;y++)
+	for (var y= 0;y<8;y++)
 	{
-		for(var x = 0;x<10;x++)
+		for(var x = 0;x<8;x++)
 		{
-			if(x!=9)
+			if(x!=7)
 			{
 				var temp1=$('<div></div>');
 				temp1.addClass("color_default row");
@@ -115,7 +128,7 @@ function initcontainer()
 				temp1.attr("value",0);
 				$('#container').append(temp1);
 			}
-			if(y!=9)
+			if(y!=7)
 			{
 				var temp2=$('<div></div>');
 				temp2.addClass("color_default col");
@@ -125,7 +138,7 @@ function initcontainer()
 				temp2.attr("value",0);
 				$('#container').append(temp2);
 			}
-			if(y!=9&&x!=9)
+			if(y!=7&&x!=7)
 			{
 				var temp=$('<div></div>');
 				temp.addClass("box");
@@ -141,7 +154,7 @@ function initcontainer()
 		
 function isGameOver()
 {
-	if(score1+score2==81)
+	if(score1+score2==49)
 	{
 		alert("玩家"+(score1>score2?'1':'2')+'获胜');
 	}
@@ -152,6 +165,11 @@ $('.row ,.col').bind('click',function()
 {
 	if($(this).hasClass('color_default')&&!lock)
 	{
+		if(currentpos)
+		{
+			$(currentpos).removeClass('color_current');
+			currentpos=null;
+		}
 		$(this).removeClass('color_default');
 		var count=current_player?1:2;
 		$(this).addClass('color_click_'+count);
@@ -169,9 +187,9 @@ $('.row ,.col').bind('click',function()
 		{
 			lock = !lock;
 			current_player = !current_player;
-			$('#cur_user').text('当前：玩家'+(2-current_player));
+			var m =(first_player-current_player)?"对方回合":"你的回合";
+			$('#cur_user').text(m);
 		}
-		
 		isGameOver();
 	}
 });

@@ -1,7 +1,7 @@
 #score
 {
 	height:20px;
-	width:360px;
+	width:300px;
 	margin:0 auto;
 	position:relative;
 }
@@ -30,14 +30,14 @@
 	
 #container
 {
-	width:360px;
-	height:360px;
+	width:280px;
+	height:280px;
 	background-color:#eeeeee;
 	position:relative;
 	margin:0 auto;
 }
 #message-box{
-	width:360px;
+	width:280px;
 	margin:0 auto;
 }
 .message{
@@ -54,6 +54,10 @@
 	background-color:#ff0000;
 }
 .color_click_2
+{
+	background-color:#00ff00;
+}
+.color_current
 {
 	background-color:#000000;
 }
