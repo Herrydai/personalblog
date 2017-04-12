@@ -1,9 +1,11 @@
 var current_player=true;
 var score1=0,score2=0;
-var socket=null;
-var lock=true;
+var socket=null;//connect to the server
+var lock=true;//forbid the user's touch
 var first_player=true;
-var currentpos = null;
+var currentpos = null;//used to mark the current pos of opponent's
+
+var LENGTH = 5;
 
 function addScore(current_player,getscore)
 {
@@ -62,11 +64,9 @@ function checkBox(x,y,type,current_player)
 function initconnect()
 {
 	socket = io.connect('ws://localhost:3000');
-	var Uid=new Date().getTime()+""+Math.floor(Math.random()*899+100);
-	socket.emit('login', {userid:Uid, username:22222});
+	socket.emit('login', {});
 	socket.on('getuser',function(o){
-		first_player=o.isFirst;
-		//lock = !first_player;	
+		first_player=o.isFirst;	
 	});
 	socket.on('action', function(o){
 		
@@ -111,39 +111,50 @@ function initconnect()
 }
 function initcontainer()
 {
+	var containLen = $(document).width()-20;
+	containLen = containLen>360?360:containLen;
+	$('#container').css('width',containLen);
+	$('#container').css('height',containLen);
+	$('#score').css('width',containLen);
+	$('#message').css('width',containLen);
+	var lineLen = containLen/LENGTH;
 	score1=0;score2=0;
 	$('#user1').text("玩家1：0");
 	$('#user2').text("玩家2：0");
-	for (var y= 0;y<8;y++)
+	for (var y= 0;y<LENGTH+1;y++)
 	{
-		for(var x = 0;x<8;x++)
+		for(var x = 0;x<LENGTH+1;x++)
 		{
-			if(x!=7)
+			if(x!=LENGTH)
 			{
 				var temp1=$('<div></div>');
 				temp1.addClass("color_default row");
-				temp1.css("left",x*40+"px");
-				temp1.css("top", y*40 +"px");
+				temp1.css("left",x*lineLen+"px");
+				temp1.css("top", y*lineLen +"px");
+				temp1.css("width",lineLen+"px");
 				temp1.attr("id",'row'+x+y);
 				temp1.attr("value",0);
 				$('#container').append(temp1);
 			}
-			if(y!=7)
+			if(y!=LENGTH)
 			{
 				var temp2=$('<div></div>');
 				temp2.addClass("color_default col");
-				temp2.css("left",x*40+"px");
-				temp2.css("top", y*40 +"px");
+				temp2.css("left",x*lineLen+"px");
+				temp2.css("top", y*lineLen +"px");
+				temp2.css("height",lineLen+"px");
 				temp2.attr("id",'col'+x+y);
 				temp2.attr("value",0);
 				$('#container').append(temp2);
 			}
-			if(y!=7&&x!=7)
+			if(y!=LENGTH&&x!=LENGTH)
 			{
 				var temp=$('<div></div>');
 				temp.addClass("box");
-				temp.css("left",(x*40+5)+"px");
-				temp.css("top", (y*40+5) +"px");
+				temp.css("width",(lineLen-5)+"px");
+				temp.css("height",(lineLen-5)+"px");
+				temp.css("left",(x*lineLen+5)+"px");
+				temp.css("top", (y*lineLen+5) +"px");
 				temp.attr("id",'box'+x+y);
 				$('#container').append(temp);
 			}
@@ -154,7 +165,7 @@ function initcontainer()
 		
 function isGameOver()
 {
-	if(score1+score2==49)
+	if(score1+score2==LENGTH*LENGTH)
 	{
 		alert("玩家"+(score1>score2?'1':'2')+'获胜');
 	}
